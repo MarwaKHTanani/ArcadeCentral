@@ -3,8 +3,110 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>landing</title>
+    <title>Arcade Central</title>
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
-  <body></body>
+
+  <body class="bg-[#0f172a] text-white">
+    <section
+      class="max-w-7xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 items-center"
+    >
+      <div>
+        <h1 class="text-5xl md:text-6xl font-extrabold mt-6 leading-tight">
+          <span class="text-white">Arcade</span>
+          <span class="text-purple-500">Central</span>
+        </h1>
+
+        <h2 class="text-3xl md:text-4xl font-bold mt-6 leading-tight text-gray-300">
+          Discover & Play Amazing Games
+        </h2>
+
+        <p class="text-slate-300 mt-6 text-lg">
+          Browse games, save favorites, leave comments, and explore new
+          adventures in one place.
+        </p>
+
+        <div class="mt-8 flex gap-4">
+          <a
+            href="/register"
+            class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-xl"
+          >
+            Create Account
+          </a>
+          <a href="/login" class="border border-slate-600 px-6 py-3 rounded-xl">
+            Login
+          </a>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        {% for game in hero_games %}
+        <div class="rounded-2xl overflow-hidden bg-slate-800 shadow-lg">
+          <img src="{{ game.image_url }}" class="h-40 w-full object-cover" />
+          <div class="p-3 text-center text-sm font-bold">{{ game.title }}</div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="bg-[#111827] py-20">
+      <div class="max-w-7xl mx-auto px-6">
+        <h2 class="text-3xl font-bold mb-10">Featured Games</h2>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          {% for game in games %}
+          <div
+            class="bg-[#1e293b] rounded-2xl overflow-hidden hover:scale-105 transition"
+          >
+            <img src="{{ game.image_url }}" class="h-48 w-full object-cover" />
+
+            <div class="p-5">
+              <h3 class="text-white font-bold text-lg">{{ game.title }}</h3>
+              <p class="text-slate-400 mt-2 text-sm">
+                {{ game.description|truncatechars:80 }}
+              </p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-[#0f172a] py-20">
+      <div class="max-w-6xl mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold mb-12">Why Choose Arcade Central?</h2>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="bg-[#1e293b] p-6 rounded-2xl">
+            <h3 class="text-xl font-bold">Instant Play</h3>
+            <p class="text-slate-400 mt-3">
+              Play games instantly with no downloads.
+            </p>
+          </div>
+
+          <div class="bg-[#1e293b] p-6 rounded-2xl">
+            <h3 class="text-xl font-bold">Favorites</h3>
+            <p class="text-slate-400 mt-3">Save your favorite games anytime.</p>
+          </div>
+
+          <div class="bg-[#1e293b] p-6 rounded-2xl">
+            <h3 class="text-xl font-bold">Community</h3>
+            <p class="text-slate-400 mt-3">Share comments and opinions.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-purple-700 py-16 text-center">
+      <h2 class="text-4xl font-bold">Ready to Play?</h2>
+      <p class="text-purple-100 mt-3">Join Arcade Central today.</p>
+
+      <a
+        href="/register"
+        class="inline-block mt-6 bg-white text-purple-700 px-8 py-3 rounded-xl font-bold"
+      >
+        Get Started
+      </a>
+    </section>
+  </body>
 </html>

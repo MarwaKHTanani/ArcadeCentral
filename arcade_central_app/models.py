@@ -52,7 +52,7 @@ class Game(models.Model):
     description = models.TextField()
     genre = models.CharField(max_length=20, choices=GENRE_CHOICES)
     platform = models.CharField(max_length=20, choices=PLATFORM_CHOICES)
-    image_url = models.TextField()
+    image_url = models.URLField()
     created_at = models.DateTimeField(auto_now_add=True)
     objects = GameManager()
 

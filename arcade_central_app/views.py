@@ -5,12 +5,18 @@ from django.contrib import messages
 from .models import Game, Comment, FavoriteGame
 from django.http import JsonResponse
 
-
 # Create your views here.
 
 
 def landing(request):
-    return render(request, "landing.html")
+    games = list(Game.objects.order_by("created_at")[:3])
+    hero_games = list(Game.objects.order_by("-created_at")[:4])
+
+    context = {
+        "games": games,
+        "hero_games": hero_games,
+    }
+    return render(request, "landing.html", context)
 
 
 def register_page(request):
@@ -230,6 +236,7 @@ def delete_comment(request, id):
 
     return redirect(f"/game/{comment.game.id}/")
 
+
 def game_api(request, id):
     game = Game.objects.get(id=id)
 
@@ -241,3 +248,5 @@ def game_api(request, id):
     }
 
     return JsonResponse(data)
+
+
