@@ -39,6 +39,7 @@ class Game(models.Model):
         ("RPG", "RPG"),
         ("HORROR", "Horror"),
         ("SPORTS", "Sports"),
+        ("FPS", "FPS"),
     ]
 
     PLATFORM_CHOICES = [
@@ -61,6 +62,9 @@ class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     comment = models.TextField()
+    parent = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -68,3 +72,17 @@ class FavoriteGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
+    
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ("new_game", "New Game"),
+        ("reply", "Reply"),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ["-created_at"]

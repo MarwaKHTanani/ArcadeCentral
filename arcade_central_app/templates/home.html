@@ -1,10 +1,239 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>home</title>
+    <title>Home — Arcade Central</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
   </head>
-  <body></body>
+  <body class="bg-[#0e1117] text-[#e8eaf0] font-['Inter']">
+    <div class="flex min-h-screen">
+      <aside
+        class="w-52 min-w-[208px] bg-[#161b27] border-r border-[#2a3147] flex flex-col p-4 sticky top-0 h-screen overflow-y-auto"
+      >
+        <div class="text-base font-extrabold tracking-tight px-3 py-1 mb-6">
+          Arcade<span class="text-[#7c6aff]">Central</span>
+        </div>
+
+        <p
+          class="text-[10px] font-semibold text-[#7b82a0] tracking-widest px-3 mb-2"
+        >
+          MENU
+        </p>
+
+        <nav class="flex flex-col gap-1 flex-1">
+          <a
+            href="/home"
+            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#7c6aff]/10 text-[#7c6aff]"
+          >
+            <i class="fa-solid fa-house w-4 text-center"></i> Home
+          </a>
+          <a
+            href="/profile"
+            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-[#7b82a0] hover:bg-[#1e2535] hover:text-[#e8eaf0] transition-all"
+          >
+            <i class="fa-solid fa-user w-4 text-center"></i> Profile
+          </a>
+          <a
+            id="notif-link"
+            href="/notifications"
+            class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-[#7b82a0] hover:bg-[#1e2535] hover:text-[#e8eaf0] transition-all"
+          >
+            <span class="flex items-center gap-2.5">
+              <i class="fa-solid fa-bell w-4 text-center"></i> Notifications
+            </span>
+            {% if unread_count %}
+            <span
+              class="text-[10px] font-bold bg-[#7c6aff] text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+              >{{ unread_count }}</span
+            >
+            {% endif %}
+          </a>
+        </nav>
+
+        <div class="border-t border-[#2a3147] pt-3 mt-3">
+          <form method="POST" action="/logout/">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="flex items-center gap-2.5 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+            >
+              <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
+              Logout
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div class="flex-1 min-w-0 flex flex-col">
+        <header
+          class="h-14 border-b border-[#2a3147] bg-[#0e1117]/80 backdrop-blur-md sticky top-0 z-40 flex items-center px-6 gap-4"
+        >
+          <div class="relative flex-1 max-w-md">
+            <i
+              class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#7b82a0] text-xs"
+            ></i>
+            <input
+              id="searchInput"
+              type="text"
+              placeholder="Search games..."
+              class="w-full bg-[#1e2535] border border-[#2a3147] focus:border-[#7c6aff] rounded-lg pl-9 pr-4 py-2 text-sm text-[#e8eaf0] placeholder-[#7b82a0] outline-none transition-colors"
+            />
+          </div>
+          <div class="ml-auto flex items-center gap-2.5">
+            <div
+              class="w-8 h-8 bg-[#7c6aff]/15 border border-[#7c6aff]/30 rounded-full flex items-center justify-center text-xs font-bold text-[#7c6aff]"
+            >
+              {{ request.user.username|first|upper }}
+            </div>
+            <span class="text-sm font-medium">{{ request.user.username }}</span>
+          </div>
+        </header>
+
+        <main class="p-7 flex-1">
+          <div
+            class="bg-[#161b27] border border-[#2a3147] rounded-2xl p-6 mb-7 flex items-center justify-between gap-4 relative overflow-hidden"
+          >
+            <div
+              class="absolute -top-10 -right-10 w-40 h-40 bg-[#7c6aff] rounded-full opacity-5 pointer-events-none"
+            ></div>
+            <div class="relative z-10">
+              <p
+                class="text-xs font-semibold text-[#7c6aff] tracking-widest mb-1.5"
+              >
+                WELCOME BACK
+              </p>
+              <h1 class="text-xl font-extrabold tracking-tight mb-1">
+                {{ request.user.username }}
+              </h1>
+              <p class="text-sm text-[#7b82a0]">
+                Discover games, save your favorites, and share your thoughts.
+              </p>
+            </div>
+            <a
+              href="#games"
+              class="relative z-10 shrink-0 bg-[#7c6aff] hover:bg-[#6a59e8] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-all hover:-translate-y-px"
+            >
+              Browse Games
+            </a>
+          </div>
+
+          <section id="games">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold tracking-tight">All Games</h2>
+              <span
+                id="countBadge"
+                class="text-xs text-[#7b82a0] bg-[#1e2535] border border-[#2a3147] px-3 py-1 rounded-full"
+                >{{ games|length }} games</span
+              >
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap mb-5">
+              <button
+                onclick="setGenre('all')"
+                data-filter="all"
+                class="filter-btn active-filter text-xs font-semibold px-3.5 py-1.5 rounded-full border border-[#7c6aff]/30 bg-[#7c6aff]/15 text-[#a89fff] transition-all"
+              >
+                All
+              </button>
+              {% for genre in genres %}
+              <button
+                onclick="setGenre('{{ genre|lower }}')"
+                data-filter="{{ genre|lower }}"
+                class="filter-btn text-xs font-semibold px-3.5 py-1.5 rounded-full border border-[#2a3147] bg-[#1e2535] text-[#7b82a0] transition-all hover:border-[#7c6aff]/40 hover:text-[#a89fff]"
+              >
+                {{ genre }}
+              </button>
+              {% endfor %}
+            </div>
+
+            <div id="noResults" class="hidden text-center py-16 text-[#7b82a0]">
+              <i
+                class="fa-solid fa-magnifying-glass text-3xl mb-3 opacity-30 block"
+              ></i>
+              <p class="text-sm">No games match your search.</p>
+            </div>
+
+            <div
+              id="gamesGrid"
+              class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+            >
+              {% for game in games %}
+              <div
+                class="game-card bg-[#161b27] border border-[#2a3147] rounded-xl overflow-hidden hover:border-[#7c6aff] hover:-translate-y-0.5 transition-all flex flex-col"
+                data-title="{{ game.title|lower }}"
+                data-description="{{ game.description|lower }}"
+                data-genre="{{ game.genre|lower }}"
+              >
+                <div class="relative">
+                  <img
+                    src="{{ game.image_url }}"
+                    alt="{{ game.title }}"
+                    loading="lazy"
+                    class="w-full h-36 object-cover"
+                  />
+                  <div class="absolute top-2 left-2">
+                    <span
+                      class="text-[10px] font-semibold bg-[#7c6aff]/15 text-[#a89fff] border border-[#7c6aff]/20 px-2 py-0.5 rounded-full"
+                      >{{ game.genre }}</span
+                    >
+                  </div>
+                </div>
+
+                <div class="p-4 flex flex-col gap-2.5 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <h3 class="text-sm font-bold leading-snug">
+                      {{ game.title }}
+                    </h3>
+                    <button
+                      data-game-id="{{ game.id }}"
+                      onclick="toggleFavorite(event, this)"
+                      class="hover:scale-125 transition-transform shrink-0 p-0.5"
+                    >
+                      {% if game.id in user_favorites %}
+                      <i class="fa-solid fa-heart text-[#ff6b8a]"></i>
+                      {% else %}
+                      <i class="fa-regular fa-heart text-[#7b82a0]"></i>
+                      {% endif %}
+                    </button>
+                  </div>
+
+                  <p class="text-xs text-[#7b82a0] leading-relaxed">
+                    {{ game.description|truncatechars:65 }}
+                  </p>
+
+                  <span
+                    class="text-[10px] font-medium bg-[#1e2535] text-[#7b82a0] border border-[#2a3147] px-2 py-0.5 rounded-full w-fit"
+                  >
+                    <i class="fa-solid fa-display text-[8px] mr-1"></i>
+                    {{game.platform }}
+                  </span>
+
+                  <a
+                    href="/game/{{ game.id }}/"
+                    class="mt-auto block text-center bg-[#1e2535] hover:bg-[#7c6aff] border border-[#2a3147] hover:border-[#7c6aff] text-[#e8eaf0] text-xs font-semibold py-2.5 rounded-lg transition-all"
+                  >
+                    View Details
+                  </a>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="{% static 'js/favorites.js' %}"></script>
+  </body>
 </html>

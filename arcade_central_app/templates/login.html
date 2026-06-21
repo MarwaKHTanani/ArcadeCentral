@@ -3,8 +3,146 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>login</title>
+    <title>Sign in — Arcade Central</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
   </head>
-  <body></body>
+  <body class="bg-[#0e1117] text-[#e8eaf0] font-['Inter'] min-h-screen flex">
+    <aside
+      class="hidden lg:flex w-[45%] bg-[#161b27] border-r border-[#2a3147] flex-col items-center justify-center p-16 relative overflow-hidden"
+    >
+      <div
+        class="absolute -top-20 -left-20 w-96 h-96 bg-[#7c6aff] rounded-full opacity-10 blur-3xl pointer-events-none"
+      ></div>
+      <div
+        class="absolute -bottom-10 -right-10 w-72 h-72 bg-[#5b8af5] rounded-full opacity-10 blur-3xl pointer-events-none"
+      ></div>
+
+      <div class="relative z-10 max-w-xs w-full">
+        <div class="text-2xl font-extrabold tracking-tight mb-10">
+          Arcade<span class="text-[#7c6aff]">Central</span>
+        </div>
+
+        <div class="flex flex-col gap-5">
+          <div class="flex items-start gap-3.5">
+            <div
+              class="w-9 h-9 min-w-[36px] bg-[#7c6aff]/15 border border-[#7c6aff]/25 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-gamepad text-[#7c6aff] text-sm"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-1">
+                {{games_count}}+ Games
+              </div>
+              <div class="text-xs text-[#7b82a0] leading-relaxed">
+                Browse an ever-growing library across all genres and platforms.
+              </div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3.5">
+            <div
+              class="w-9 h-9 min-w-[36px] bg-[#5b8af5]/15 border border-[#5b8af5]/25 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-heart text-[#5b8af5] text-sm"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-1">Your Favorites List</div>
+              <div class="text-xs text-[#7b82a0] leading-relaxed">
+                Save games you love and access them from any device.
+              </div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3.5">
+            <div
+              class="w-9 h-9 min-w-[36px] bg-[#e879a0]/15 border border-[#e879a0]/25 rounded-lg flex items-center justify-center"
+            >
+              <i class="fa-solid fa-comments text-[#e879a0] text-sm"></i>
+            </div>
+            <div>
+              <div class="text-sm font-semibold mb-1">Community Reviews</div>
+              <div class="text-xs text-[#7b82a0] leading-relaxed">
+                Join conversations and share your gaming opinions.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="flex-1 flex items-center justify-center px-6 py-10">
+      <div class="w-full max-w-sm">
+        <a
+          href="/"
+          class="inline-flex items-center gap-1.5 text-xs text-[#7b82a0] hover:text-[#e8eaf0] transition-colors mb-9"
+        >
+          <i class="fa-solid fa-arrow-left text-[10px]"></i> Back to home
+        </a>
+
+        <h1 class="text-2xl font-extrabold tracking-tight mb-1.5">
+          Welcome back
+        </h1>
+        <p class="text-sm text-[#7b82a0] mb-8">
+          Sign in to your Arcade Central account
+        </p>
+
+        {% for message in messages %}
+        <div
+          class="bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3 text-sm text-red-400 mb-5"
+        >
+          <i class="fa-solid fa-circle-exclamation mr-2"></i>{{ message }}
+        </div>
+        {% endfor %}
+
+        <form method="POST" action="/login/" class="flex flex-col gap-4">
+          {% csrf_token %}
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-[#7b82a0]">Username</label>
+            <input
+              type="text"
+              name="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+              class="w-full bg-[#1e2535] border border-[#2a3147] focus:border-[#7c6aff] rounded-lg px-4 py-3 text-sm text-[#e8eaf0] placeholder-[#7b82a0] outline-none transition-colors"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label class="text-xs font-medium text-[#7b82a0]">Password</label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              class="w-full bg-[#1e2535] border border-[#2a3147] focus:border-[#7c6aff] rounded-lg px-4 py-3 text-sm text-[#e8eaf0] placeholder-[#7b82a0] outline-none transition-colors"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-[#7c6aff] hover:bg-[#6a59e8] text-white font-semibold py-3 rounded-lg transition-all hover:-translate-y-px mt-1"
+          >
+            Sign in
+          </button>
+        </form>
+
+        <p class="text-center text-sm text-[#7b82a0] mt-6">
+          Don't have an account?
+          <a
+            href="/register/"
+            class="text-[#7c6aff] font-semibold hover:underline"
+            >Create one →</a
+          >
+        </p>
+      </div>
+    </main>
+  </body>
 </html>

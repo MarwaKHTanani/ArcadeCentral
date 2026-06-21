@@ -2,7 +2,7 @@ from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
-from .models import Game, Comment, FavoriteGame
+from .models import Game, Comment, FavoriteGame, Notification
 from django.http import JsonResponse
 
 # Create your views here.
@@ -15,6 +15,9 @@ def landing(request):
     context = {
         "games": games,
         "hero_games": hero_games,
+        "games_count": Game.objects.count(),
+        "comments_count": Comment.objects.count(),
+        "users_count": User.objects.count(),
     }
     return render(request, "landing.html", context)
 
@@ -56,6 +59,10 @@ def register_page(request):
 
 
 def login_page(request):
+    context = {
+        "games_count": Game.objects.count(),
+    }
+
     if request.method == "POST":
         username = request.POST["username"]
         password = request.POST["password"]
@@ -73,7 +80,7 @@ def login_page(request):
             messages.error(request, "Invalid username or password")
             return redirect("/login")
 
-    return render(request, "login.html")
+    return render(request, "login.html", context)
 
 
 def logout_user(request):
@@ -109,6 +116,13 @@ def add_game(request):
             platform=request.POST["platform"].strip(),
             image_url=request.POST["image_url"].strip(),
         )
+        for user in User.objects.filter(is_superuser=False):
+
+            Notification.objects.create(
+                user=user,
+                type="new_game",
+                message=f"A new game '{request.POST['title']}' has been added to Arcade Central!",
+            )
 
     return redirect("/admin_dashboard")
 
@@ -153,7 +167,19 @@ def home(request):
     if not request.user.is_authenticated:
         return redirect("/login")
 
-    context = {"games": Game.objects.all()}
+    favorites = FavoriteGame.objects.filter(user=request.user)
+
+    user_favorites = favorites.values_list("game_id", flat=True)
+    games = Game.objects.all()
+    genres = list(games.values_list("genre", flat=True).distinct())
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    context = {
+        "games": games,
+        "user_favorites": user_favorites,
+        "genres": genres,
+        "unread_count": unread_count,
+    }
 
     return render(request, "home.html", context)
 
@@ -162,9 +188,15 @@ def game_details(request, id):
     if not request.user.is_authenticated:
         return redirect("/login")
 
+    game = Game.objects.get(id=id)
+    comments = Comment.objects.filter(game=game, parent=None).order_by("-created_at")
+    is_favorite = FavoriteGame.objects.filter(user=request.user, game=game).exists()
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
     context = {
-        "game": Game.objects.get(id=id),
-        "comments": Comment.objects.filter(game_id=id),
+        "game": game,
+        "comments": comments,
+        "is_favorite": is_favorite,
+        "unread_count": unread_count,
     }
 
     return render(request, "game_details.html", context)
@@ -175,39 +207,33 @@ def profile(request):
         return redirect("/login")
 
     favorites = FavoriteGame.objects.filter(user=request.user)
-
+    comments_count = Comment.objects.filter(user=request.user).count()
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
     context = {
         "user": request.user,
         "favorites_count": favorites.count(),
         "favorites": favorites,
+        "comments_count": comments_count,
+        "unread_count": unread_count,
     }
 
     return render(request, "profile.html", context)
 
 
-def favorites(request):
-    if not request.user.is_authenticated:
-        return redirect("/login")
-
-    favorites = FavoriteGame.objects.filter(user=request.user)
-
-    context = {"favorites": favorites}
-
-    return render(request, "favorites.html", context)
-
-
 def add_favorite(request, id):
     if not request.user.is_authenticated:
-        return redirect("/login")
+        return JsonResponse({"status": "unauthorized"})
 
     game = Game.objects.get(id=id)
 
-    if FavoriteGame.objects.filter(user=request.user, game=game).exists():
-        return redirect(f"/game/{id}/")
+    favorite = FavoriteGame.objects.filter(user=request.user, game=game).first()
+    if favorite:
+        favorite.delete()
+        return JsonResponse({"status": "removed"})
 
     FavoriteGame.objects.create(user=request.user, game=game)
 
-    return redirect(f"/game/{id}/")
+    return JsonResponse({"status": "added"})
 
 
 def add_comment(request, id):
@@ -216,9 +242,19 @@ def add_comment(request, id):
 
     game = Game.objects.get(id=id)
     comment = request.POST.get("comment", "").strip()
+    parent_id = request.POST.get("parent_id")
 
     if comment:
-        Comment.objects.create(user=request.user, game=game, comment=comment)
+        parent = Comment.objects.get(id=parent_id) if parent_id else None
+        Comment.objects.create(
+            user=request.user, game=game, comment=comment, parent=parent
+        )
+        if parent and parent.user != request.user:
+            Notification.objects.create(
+                user=parent.user,
+                type="reply",
+                message=f"{request.user.username} replied to your comment on '{game.title}'!",
+            )
 
     return redirect(f"/game/{id}/")
 
@@ -237,16 +273,65 @@ def delete_comment(request, id):
     return redirect(f"/game/{comment.game.id}/")
 
 
-def game_api(request, id):
-    game = Game.objects.get(id=id)
+def unread_notifications_api(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "unauthorized"})
 
-    data = {
-        "id": game.id,
-        "title": game.title,
-        "description": game.description,
-        "genre": game.genre,
+    count = Notification.objects.filter(user=request.user, is_read=False).count()
+    return JsonResponse({"count": count})
+
+
+def remove_favorite(request, id):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+    favorite = FavoriteGame.objects.get(user=request.user, game_id=id)
+    if favorite:
+        favorite.delete()
+    return redirect("/profile/")
+
+
+def notifications(request):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+
+    notifications = Notification.objects.filter(user=request.user)
+    unread_count = notifications.filter(is_read=False).count()
+
+    notifications.filter(is_read=False).update(is_read=True)
+
+    context = {
+        "notifications": notifications,
+        "unread_count": unread_count,
     }
+    return render(request, "notifications.html", context)
 
-    return JsonResponse(data)
 
+def comments_api(request, id):
+    if not request.user.is_authenticated:
+        return JsonResponse({"status": "unauthorized"})
 
+    comments = Comment.objects.filter(game_id=id, parent=None).order_by("created_at")
+    data = []
+    for comment in comments:
+        replies = []
+        for reply in comment.replies.all():
+            replies.append(
+                {
+                    "id": reply.id,
+                    "user": reply.user.username,
+                    "text": reply.comment,
+                    "time": reply.created_at.strftime("%b %d, %Y"),
+                    "is_mine": reply.user == request.user,
+                }
+            )
+        data.append(
+            {
+                "id": comment.id,
+                "user": comment.user.username,
+                "text": comment.comment,
+                "time": comment.created_at.strftime("%b %d, %Y"),
+                "is_mine": comment.user == request.user,
+                "replies": replies,
+            }
+        )
+    return JsonResponse({"comments": data})

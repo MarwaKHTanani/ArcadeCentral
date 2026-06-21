@@ -1,10 +1,291 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>profile</title>
+    <title>Profile — Arcade Central</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    />
   </head>
-  <body></body>
+  <body class="bg-[#0e1117] text-[#e8eaf0] font-['Inter']">
+    <div class="flex min-h-screen">
+      <aside
+        class="w-52 min-w-[208px] bg-[#161b27] border-r border-[#2a3147] flex flex-col p-4 sticky top-0 h-screen overflow-y-auto"
+      >
+        <div class="text-base font-extrabold tracking-tight px-3 py-1 mb-6">
+          Arcade<span class="text-[#7c6aff]">Central</span>
+        </div>
+
+        <p
+          class="text-[10px] font-semibold text-[#7b82a0] tracking-widest px-3 mb-2"
+        >
+          MENU
+        </p>
+
+        <nav class="flex flex-col gap-1 flex-1">
+          <a
+            href="/home"
+            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium text-[#7b82a0] hover:bg-[#1e2535] hover:text-[#e8eaf0] transition-all"
+          >
+            <i class="fa-solid fa-house w-4 text-center"></i> Home
+          </a>
+          <a
+            href="/profile"
+            class="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium bg-[#7c6aff]/10 text-[#7c6aff]"
+          >
+            <i class="fa-solid fa-user w-4 text-center"></i> Profile
+          </a>
+          <a
+            id="notif-link"
+            href="/notifications"
+            class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium text-[#7b82a0] hover:bg-[#1e2535] hover:text-[#e8eaf0] transition-all"
+          >
+            <span class="flex items-center gap-2.5">
+              <i class="fa-solid fa-bell w-4 text-center"></i> Notifications
+            </span>
+            {% if unread_count %}
+            <span
+              class="text-[10px] font-bold bg-[#7c6aff] text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center"
+              >{{ unread_count }}</span
+            >
+            {% endif %}
+          </a>
+        </nav>
+
+        <div class="border-t border-[#2a3147] pt-3 mt-3">
+          <form method="POST" action="/logout/">
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="flex items-center gap-2.5 px-3 py-2.5 w-full rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-all"
+            >
+              <i class="fa-solid fa-right-from-bracket w-4 text-center"></i>
+              Logout
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <div class="flex-1 min-w-0 flex flex-col">
+        <header
+          class="h-14 border-b border-[#2a3147] bg-[#0e1117]/80 backdrop-blur-md sticky top-0 z-40 flex items-center px-6"
+        >
+          <h1 class="text-sm font-semibold text-[#7b82a0]">My Profile</h1>
+          <div class="ml-auto flex items-center gap-2.5">
+            <div
+              class="w-8 h-8 bg-[#7c6aff]/15 border border-[#7c6aff]/30 rounded-full flex items-center justify-center text-xs font-bold text-[#7c6aff]"
+            >
+              {{ user.username|first|upper }}
+            </div>
+            <span class="text-sm font-medium">{{ user.username }}</span>
+          </div>
+        </header>
+
+        <main class="p-7 flex-1">
+          <div
+            class="bg-[#161b27] border border-[#2a3147] rounded-2xl overflow-hidden mb-7"
+          >
+            <div class="px-7 py-7">
+              <div class="flex items-start justify-between gap-6 flex-wrap">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-14 h-14 rounded-xl bg-[#7c6aff]/20 border border-[#7c6aff]/30 flex items-center justify-center text-2xl font-extrabold text-[#7c6aff] shrink-0"
+                  >
+                    {{ user.username|first|upper }}
+                  </div>
+                  <div>
+                    <h2 class="text-xl font-extrabold tracking-tight mb-0.5">
+                      {{ user.username }}
+                    </h2>
+                    <p class="text-sm text-[#7b82a0]">{{ user.email }}</p>
+                    <p class="text-xs text-[#7b82a0] mt-1">
+                      <i class="fa-solid fa-calendar-days mr-1.5"></i>Joined 
+                      {{user.date_joined|date:"M Y" }}
+                    </p>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                  <div
+                    class="bg-[#1e2535] border border-[#2a3147] rounded-xl px-5 py-3 text-center"
+                  >
+                    <div class="text-xl font-bold text-[#7c6aff]">
+                      {{ favorites_count }}
+                    </div>
+                    <div class="text-[11px] text-[#7b82a0] mt-0.5">
+                      Favorites
+                    </div>
+                  </div>
+                  <div
+                    class="bg-[#1e2535] border border-[#2a3147] rounded-xl px-5 py-3 text-center"
+                  >
+                    <div class="text-xl font-bold text-[#5b8af5]">
+                      {{ comments_count }}
+                    </div>
+                    <div class="text-[11px] text-[#7b82a0] mt-0.5">Reviews</div>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6 pt-6 border-t border-[#2a3147]"
+              >
+                <div
+                  class="bg-[#1e2535] border border-[#2a3147] rounded-xl px-4 py-3 flex items-center gap-3"
+                >
+                  <div
+                    class="w-8 h-8 bg-[#7c6aff]/10 rounded-lg flex items-center justify-center shrink-0"
+                  >
+                    <i class="fa-solid fa-user text-[#7c6aff] text-xs"></i>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-[#7b82a0] font-medium mb-0.5">
+                      USERNAME
+                    </div>
+                    <div class="text-sm font-semibold">{{ user.username }}</div>
+                  </div>
+                </div>
+
+                <div
+                  class="bg-[#1e2535] border border-[#2a3147] rounded-xl px-4 py-3 flex items-center gap-3"
+                >
+                  <div
+                    class="w-8 h-8 bg-[#5b8af5]/10 rounded-lg flex items-center justify-center shrink-0"
+                  >
+                    <i class="fa-solid fa-envelope text-[#5b8af5] text-xs"></i>
+                  </div>
+                  <div>
+                    <div class="text-[10px] text-[#7b82a0] font-medium mb-0.5">
+                      EMAIL
+                    </div>
+                    <div class="text-sm font-semibold">{{ user.email }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between mb-5">
+            <div>
+              <p
+                class="text-xs font-semibold text-[#7c6aff] tracking-widest mb-1"
+              >
+                COLLECTION
+              </p>
+              <h2 class="text-lg font-bold tracking-tight">Favorite Games</h2>
+            </div>
+            {% if favorites_count > 0 %}
+            <span
+              class="text-xs text-[#7b82a0] bg-[#1e2535] border border-[#2a3147] px-3 py-1 rounded-full"
+              >{{ favorites_count }} saved</span
+            >
+            {% endif %}
+          </div>
+
+          {% if favorites %}
+          <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {% for fav in favorites %}
+            <div
+              class="bg-[#161b27] border border-[#2a3147] rounded-xl overflow-hidden hover:border-[#7c6aff] hover:-translate-y-0.5 transition-all flex flex-col"
+            >
+              <div class="relative">
+                <img
+                  src="{{ fav.game.image_url }}"
+                  alt="{{ fav.game.title }}"
+                  loading="lazy"
+                  class="w-full h-36 object-cover"
+                />
+                <div class="absolute top-2 left-2">
+                  <span
+                    class="text-[10px] font-semibold bg-[#7c6aff]/15 text-[#a89fff] border border-[#7c6aff]/20 px-2 py-0.5 rounded-full"
+                  >
+                    {{ fav.game.genre }}
+                  </span>
+                </div>
+                <div class="absolute top-2 right-2">
+                  <span
+                    class="flex items-center justify-center w-6 h-6 bg-[#161b27]/80 backdrop-blur-sm rounded-full"
+                  >
+                    <i class="fa-solid fa-heart text-[#ff6b8a] text-xs"></i>
+                  </span>
+                </div>
+              </div>
+
+              <div class="p-4 flex flex-col gap-2.5 flex-1">
+                <h3 class="text-sm font-bold leading-snug">
+                  {{ fav.game.title }}
+                </h3>
+                <p class="text-xs text-[#7b82a0] leading-relaxed">
+                  {{ fav.game.description|truncatechars:65 }}
+                </p>
+
+                <span
+                  class="text-[10px] font-medium bg-[#1e2535] text-[#7b82a0] border border-[#2a3147] px-2 py-0.5 rounded-full w-fit"
+                >
+                  <i class="fa-solid fa-display text-[8px] mr-1"></i>
+                  {{fav.game.platform }}
+                </span>
+
+                <div class="mt-auto flex gap-2">
+                  <a
+                    href="/game/{{ fav.game.id }}/"
+                    class="flex-1 block text-center bg-[#1e2535] hover:bg-[#7c6aff] border border-[#2a3147] hover:border-[#7c6aff] text-[#e8eaf0] text-xs font-semibold py-2.5 rounded-lg transition-all"
+                  >
+                    View Details
+                  </a>
+                  <form
+                    method="POST"
+                    action="/remove-favorite/{{ fav.game.id }}/"
+                  >
+                    {% csrf_token %}
+                    <button
+                      type="submit"
+                      class="flex items-center justify-center w-9 h-9 bg-red-500/10 hover:bg-red-500/25 border border-red-500/20 hover:border-red-500/40 text-red-400 rounded-lg transition-all"
+                      title="Remove from favorites"
+                    >
+                      <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% else %}
+          <div
+            class="bg-[#161b27] border border-[#2a3147] rounded-2xl py-16 text-center"
+          >
+            <div
+              class="w-14 h-14 bg-[#1e2535] rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fa-regular fa-heart text-[#7b82a0] text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold mb-2">No favorites yet</h3>
+            <p class="text-sm text-[#7b82a0] mb-6">
+              Start saving games you love from the home page.
+            </p>
+            <a
+              href="/home"
+              class="inline-block bg-[#7c6aff] hover:bg-[#6a59e8] text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-all hover:-translate-y-px"
+            >
+              Browse Games
+            </a>
+          </div>
+          {% endif %}
+        </main>
+      </div>
+    </div>
+
+    <script src="{% static 'js/notifications_poll.js' %}"></script>
+  </body>
 </html>
