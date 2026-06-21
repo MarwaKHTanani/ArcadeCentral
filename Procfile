@@ -1,0 +1,1 @@
+web: gunicorn Arcade_Central.wsgi:application
