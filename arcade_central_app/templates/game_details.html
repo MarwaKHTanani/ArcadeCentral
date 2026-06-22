@@ -257,8 +257,8 @@
                       id="chevron-{{ comment.id }}"
                     ></i>
                     <span id="replies-label-{{ comment.id }}"
-                      >Show {{ comment.replies.count }} {{
-                      comment.replies.count|pluralize:"reply,replies" }}</span
+                      >Show {{ comment.replies.count }} 
+                      {{comment.replies.count|pluralize:"reply,replies" }}</span
                     >
                   </button>
                   {% endif %}
